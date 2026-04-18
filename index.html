@@ -1,0 +1,408 @@
+
+<style>
+*{box-sizing:border-box}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
+.btn{cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 14px;font-size:13px;font-weight:500;background:transparent;color:var(--color-text-primary);transition:background .15s,transform .1s;width:100%;text-align:left}
+.btn:hover{background:var(--color-background-secondary)}
+.btn:active{transform:scale(0.98)}
+.path-btn{cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px;background:transparent;transition:background .15s,border-color .15s,transform .1s;text-align:left;width:100%}
+.path-btn:hover{background:var(--color-background-secondary)}
+.path-btn.active{border:2px solid var(--color-border-info);background:var(--color-background-info)}
+.path-btn:active{transform:scale(0.98)}
+.loss-btn{cursor:pointer;border:0.5px solid #A32D2D;border-radius:var(--border-radius-md);padding:8px 14px;font-size:13px;font-weight:500;background:transparent;color:#A32D2D;transition:background .15s,transform .1s;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center}
+.loss-btn:hover{background:#FCEBEB}
+.loss-btn:active{transform:scale(0.98)}
+.feed-item{font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;color:var(--color-text-secondary)}
+.feed-item:last-child{border-bottom:none}
+.feed-xp{font-weight:500}
+.pos{color:#27500A}
+.neg{color:#791F1F}
+textarea{width:100%;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:13px;font-family:inherit;color:var(--color-text-primary);background:var(--color-background-primary);resize:none;outline:none;line-height:1.5;transition:border-color .4s,background .4s}
+textarea:focus{border-width:1px}
+#toast{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;z-index:10;max-width:90%;overflow:hidden;text-overflow:ellipsis}
+#toast.show{opacity:1}
+#toast.pos-t{background:#EAF3DE;color:#27500A;border:0.5px solid #3B6D11}
+#toast.neg-t{background:#FCEBEB;color:#791F1F;border:0.5px solid #A32D2D}
+#toast.warn-t{background:#FAEEDA;color:#633806;border:0.5px solid #854F0B}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+#judging-overlay{display:none;font-size:12px;color:var(--color-text-secondary);padding:6px 0;font-style:italic}
+#restore-banner{display:none;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:14px}
+</style>
+
+<div id="screen-path" style="padding:1rem 0">
+  <div id="restore-banner"></div>
+  <div style="font-size:22px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Choose your path</div>
+  <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:20px">Your career shapes what counts as progress</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px" id="path-grid"></div>
+  <div style="margin-top:16px;text-align:right">
+    <button class="btn" style="width:auto;padding:10px 24px;border-color:var(--color-border-primary)" onclick="confirmPath()">Start my journey</button>
+  </div>
+</div>
+
+<div id="screen-main" style="display:none;padding:.5rem 0">
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px">
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card" style="position:relative;text-align:center;padding:1.25rem">
+        <div id="toast"></div>
+        <div style="position:relative;width:160px;height:160px;margin:0 auto 8px">
+          <canvas id="bc" width="160" height="160" style="position:absolute;top:0;left:0"></canvas>
+          <canvas id="sc" width="160" height="160" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+          <canvas id="pc" width="160" height="160" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+        </div>
+        <div id="tier-name" style="font-size:11px;letter-spacing:.07em;color:var(--color-text-secondary);margin-bottom:2px">NOVICE</div>
+        <div style="display:flex;align-items:baseline;justify-content:center;gap:6px">
+          <span id="lvl-num" style="font-size:32px;font-weight:500;color:var(--color-text-primary)">1</span>
+          <span style="font-size:13px;color:var(--color-text-secondary)">/ 100</span>
+        </div>
+        <div id="path-tag" style="margin-top:6px"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;letter-spacing:.05em">XP PROGRESS</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">
+          <span id="xp-cur">100</span><span id="xp-next">next: 1,111</span>
+        </div>
+        <div style="background:var(--color-background-secondary);border-radius:4px;height:8px;overflow:hidden">
+          <div id="xp-bar" style="height:100%;background:#3B6D11;border-radius:4px;width:0%;transition:width .4s ease"></div>
+        </div>
+        <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:4px" id="xp-to-next"></div>
+        <div style="margin-top:10px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px">
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:2px;letter-spacing:.05em">TOTAL XP</div>
+          <div id="total-xp" style="font-size:20px;font-weight:500;color:var(--color-text-primary)">100</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:.75rem 1rem">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;letter-spacing:.05em">RECENT ACTIVITY</div>
+        <div id="feed" style="min-height:48px"><div style="font-size:12px;color:var(--color-text-tertiary)">No activity yet</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card">
+        <div style="font-size:11px;color:var(--color-text-secondary);letter-spacing:.05em;margin-bottom:10px">LOG GOOD WORK</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px" id="good-hint"></div>
+        <textarea id="good-input" rows="3" placeholder="Describe what you did today in a real sentence..."></textarea>
+        <div id="judging-overlay">Judging your entry...</div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <button class="btn" style="width:auto;padding:8px 16px;border-color:#3B6D11;color:#3B6D11;font-size:12px" onclick="submitGood()">Submit for review</button>
+          <span style="font-size:11px;color:var(--color-text-tertiary)">AI judges if it counts</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:11px;color:var(--color-text-secondary);letter-spacing:.05em;margin-bottom:8px">TIME WASTERS — instant penalty</div>
+        <div style="display:flex;flex-direction:column;gap:6px" id="loss-btns"></div>
+      </div>
+
+      <div class="card" style="padding:.75rem 1rem">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:11px;color:var(--color-text-secondary);letter-spacing:.05em">PATH</div>
+          <button class="btn" style="width:auto;padding:4px 10px;font-size:11px" onclick="switchPath()">Switch path</button>
+        </div>
+        <div id="path-detail" style="margin-top:8px;font-size:13px;color:var(--color-text-secondary)"></div>
+        <div style="margin-top:10px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px">
+          <button class="btn" style="width:100%;font-size:11px;color:var(--color-text-tertiary);border-color:var(--color-border-tertiary)" onclick="resetAll()">Reset all progress</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'xp_career_v1';
+
+const PATHS = {
+  businessman:{label:'Businessman',color:'#185FA5',bg:'#E6F1FB',desc:'Close deals, build systems, grow wealth.',goodHint:'Did you network, close a deal, study finance, build a product, or work on your business?',keywords:['network','networked','networking','meeting','meetings','client','clients','deal','deals','pitch','pitched','pitching','revenue','profit','business','sales','selling','sold','marketing','finance','invest','invested','investing','startup','product','strategy','negotiate','negotiated','negotiating','partnership','brand','branding','market','money','entrepreneur','plan','planned','planning','budget','budgeting','accounting','leadership','team','called','emailed','proposal','contract','customer','onboarded','close','closed','closing'],baseXP:300},
+  youtuber:{label:'YouTuber',color:'#993C1D',bg:'#FAECE7',desc:'Create, edit, grow your audience.',goodHint:'Did you film, edit, script, research, post, or engage with your audience?',keywords:['film','filmed','filming','edit','edited','editing','script','scripted','scripting','thumbnail','thumbnails','upload','uploaded','uploading','post','posted','posting','video','videos','record','recorded','recording','channel','subscribe','subscribers','audience','content','shoot','shot','shooting','camera','audio','lighting','hook','title','titles','seo','trend','trending','collab','collabed','short','shorts','vlog','vlogged','vlogging','stream','streamed','streaming','engage','engaged','engaging','commented','replied','replying','published','publishing','rendered','rendering','storyboard','storyboarded'],baseXP:250},
+  physicist:{label:'Quantum Physicist',color:'#534AB7',bg:'#EEEDFE',desc:'Research, derive, publish, understand the universe.',goodHint:'Did you study physics, work through problems, read papers, run experiments, or write research?',keywords:['study','studied','studying','research','researched','researching','paper','papers','equation','equations','derive','derived','deriving','derivation','experiment','experiments','experimenting','simulation','simulated','simulating','math','quantum','theory','physics','lab','problem','problems','read','reading','lecture','lectures','note','notes','noting','thesis','proof','proofs','proved','proving','calculate','calculated','calculating','data','analysis','analyzed','analyzing','formula','formulas','textbook','coursework','publish','published','publishing','solved','solving','wavefunction','hamiltonian','integral','integrals','matrix','matrices','tensor','tensors'],baseXP:350},
+  athlete:{label:'Athlete',color:'#27500A',bg:'#EAF3DE',desc:'Train, recover, compete, improve.',goodHint:'Did you train, work out, practice your sport, study technique, or eat well for performance?',keywords:['train','trained','training','workout','workouts','worked','working','run','ran','running','lift','lifted','lifting','practice','practiced','practicing','drill','drilled','drilling','cardio','strength','sport','sports','exercise','exercised','exercising','recovery','recovering','stretch','stretched','stretching','diet','dieting','nutrition','technique','form','compete','competed','competing','match','matches','game','games','coach','coached','coaching','sprint','sprinted','sprinting','swim','swam','swimming','cycle','cycled','cycling','played','playing','conditioning','sets','reps','squats','deadlift','deadlifts','bench','benched','mile','miles','kilometers','yoga'],baseXP:300},
+  artist:{label:'Artist',color:'#72243E',bg:'#FBEAF0',desc:'Create, practice, build your portfolio.',goodHint:'Did you draw, paint, sculpt, design, write, compose, or practice your craft today?',keywords:['draw','drew','drawing','paint','painted','painting','sketch','sketched','sketching','design','designed','designing','sculpt','sculpted','sculpting','compose','composed','composing','write','wrote','writing','written','create','created','creating','art','artwork','illustration','illustrating','color','coloring','portfolio','practice','practiced','practicing','craft','crafting','studio','brush','canvas','digital','music','musical','photography','photograph','photographed','commission','commissioned','gallery','style','styling','concept','concepts','render','rendered','rendering','drafted','drafting','piece','pieces','song','songs','chapter','chapters','poem','poems'],baseXP:275},
+  developer:{label:'Developer',color:'#0F6E56',bg:'#E1F5EE',desc:'Code, ship, learn, build things.',goodHint:'Did you code, debug, learn a new concept, build a feature, or contribute to a project?',keywords:['code','coded','coding','build','built','building','debug','debugged','debugging','deploy','deployed','deploying','commit','committed','committing','learn','learned','learning','program','programmed','programming','feature','features','fix','fixed','fixing','project','projects','algorithm','algorithms','function','functions','database','databases','api','apis','frontend','backend','test','tested','testing','tests','review','reviewed','reviewing','refactor','refactored','refactoring','documentation','documented','documenting','open','source','github','framework','frameworks','language','languages','problem','problems','shipped','shipping','merged','merging','pushed','pushing','pulled','pulling','bug','bugs','variable','variables','class','classes','module','modules','typescript','python','javascript','react','rust'],baseXP:325}
+};
+
+const LOSSES=[
+  {label:'Scrolled TikTok / Reels',xp:-200},
+  {label:'Bedrotted (1h+)',xp:-300},
+  {label:'Binge-watched TV',xp:-250},
+  {label:'Mindless gaming',xp:-200},
+  {label:'Doom-scrolled news/Twitter',xp:-150},
+  {label:'Skipped the day entirely',xp:-500},
+];
+
+const MIN_XP=100,MAX_XP=100000;
+let xp=MIN_XP,feed=[],selectedPath=null,activePath=null,animFrame=null,particles=[],time=0;
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({xp,activePath,feed}));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw)return null;
+    return JSON.parse(raw);
+  }catch(e){return null;}
+}
+
+function clearState(){
+  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+}
+
+const tiers=[
+  {min:1,max:10,name:'NOVICE',color:'#7a9bb5',bg:'#c8dce8',border:'#5a7fa0',sides:3,star:false},
+  {min:11,max:20,name:'APPRENTICE',color:'#7b9e6e',bg:'#b8d9a8',border:'#5a8048',sides:4,star:false},
+  {min:21,max:30,name:'JOURNEYMAN',color:'#b07d4a',bg:'#e2c080',border:'#8a5c28',sides:5,star:false},
+  {min:31,max:40,name:'ADEPT',color:'#a05080',bg:'#d898c0',border:'#7a2860',sides:6,star:false},
+  {min:41,max:50,name:'EXPERT',color:'#5060c0',bg:'#a0b0e8',border:'#2838a0',sides:7,star:false},
+  {min:51,max:60,name:'VETERAN',color:'#208080',bg:'#70d0c8',border:'#106860',sides:8,star:false},
+  {min:61,max:70,name:'ELITE',color:'#9050d0',bg:'#c898f8',border:'#6820b0',sides:9,star:false},
+  {min:71,max:80,name:'MASTER',color:'#c05828',bg:'#f0a060',border:'#a03010',sides:10,star:false},
+  {min:81,max:90,name:'GRANDMASTER',color:'#b8203a',bg:'#f06080',border:'#901028',sides:12,star:false},
+  {min:91,max:99,name:'LEGENDARY',color:'#8828c0',bg:'#d868f8',border:'#6010a0',sides:5,star:true},
+  {min:100,max:100,name:'TRANSCENDENT',color:'#fff000',bg:'#ff8c00',border:'#ff4500',sides:5,star:true},
+];
+
+function getTier(l){return tiers.find(t=>l>=t.min&&l<=t.max)||tiers[0];}
+function xpForLevel(l){if(l<=1)return MIN_XP;if(l>=100)return MAX_XP;return Math.round(MIN_XP*Math.pow(MAX_XP/MIN_XP,(l-1)/99));}
+function levelFromXP(x){if(x<=MIN_XP)return 1;if(x>=MAX_XP)return 100;return Math.min(100,Math.max(1,Math.floor(1+99*Math.log(x/MIN_XP)/Math.log(MAX_XP/MIN_XP))));}
+function defaultRot(s){return s===4?Math.PI/4:-Math.PI/2;}
+
+function polyPath(c,cx,cy,r,s,rot){c.beginPath();for(let i=0;i<s;i++){const a=(Math.PI*2/s)*i+rot;i===0?c.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();}
+function starPath(c,cx,cy,r1,r2,pts,rot){rot=rot??-Math.PI/2;c.beginPath();for(let i=0;i<pts*2;i++){const a=(Math.PI/pts)*i+rot,r=i%2===0?r1:r2;i===0?c.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();}
+function clipShape(c,tier,cx,cy,r){if(tier.star)starPath(c,cx,cy,r,r*0.42,tier.sides);else polyPath(c,cx,cy,r,tier.sides,defaultRot(tier.sides));}
+function shineStr(level){const g=(level-1)/99,nt=Math.round(level/10)*10,dist=Math.abs(level-nt);const pulse=dist<=8?Math.pow(1-dist/8,1.5):0;return Math.min(1,g*0.6+pulse*(0.4+g*0.6));}
+
+const bc=document.getElementById('bc'),bCtx=bc.getContext('2d');
+const sc=document.getElementById('sc'),sCtx=sc.getContext('2d');
+const pc=document.getElementById('pc'),pCtx=pc.getContext('2d');
+
+function drawShine(level,baseR,tier){
+  const cx=80,cy=80;sCtx.clearRect(0,0,160,160);
+  const str=shineStr(level);if(str<0.01)return;
+  const ti=tiers.indexOf(tier),prev=tiers[Math.max(0,ti-1)],next=tiers[Math.min(tiers.length-1,ti+1)];
+  const sweep=(Math.sin(time*1.1)+1)/2;
+  sCtx.save();sCtx.beginPath();clipShape(sCtx,tier,cx,cy,baseR-1);sCtx.clip();
+  const gx1=cx-baseR*1.4+sweep*baseR*2.8;
+  const grd=sCtx.createLinearGradient(gx1,cy,gx1+baseR*1.4,cy);
+  const a=Math.round(str*180).toString(16).padStart(2,'0'),ma=Math.round(str*220).toString(16).padStart(2,'0');
+  grd.addColorStop(0,prev.bg+'00');grd.addColorStop(0.25,prev.bg+a);grd.addColorStop(0.5,tier.bg+ma);grd.addColorStop(0.75,next.bg+a);grd.addColorStop(1,next.bg+'00');
+  sCtx.fillStyle=grd;sCtx.fillRect(cx-baseR*1.5,cy-baseR*1.5,baseR*3,baseR*3);
+  const sx=gx1+baseR*0.55,sg=sCtx.createLinearGradient(sx-10,cy-baseR,sx+10,cy+baseR);
+  const wa=Math.round(str*180).toString(16).padStart(2,'0'),wb=Math.round(Math.min(255,str*255)).toString(16).padStart(2,'0');
+  sg.addColorStop(0,'#ffffff00');sg.addColorStop(0.45,'#ffffff'+wa);sg.addColorStop(0.5,'#ffffff'+wb);sg.addColorStop(0.55,'#ffffff'+wa);sg.addColorStop(1,'#ffffff00');
+  sCtx.save();sCtx.translate(sx,cy);sCtx.rotate(-0.35);sCtx.fillStyle=sg;sCtx.fillRect(-10,-baseR*1.4,20,baseR*2.8);sCtx.restore();
+  if(level>=70){const bloom=(level-70)/30,bg=sCtx.createRadialGradient(cx,cy,0,cx,cy,baseR);bg.addColorStop(0,'rgba(255,255,255,'+bloom*0.25+')');bg.addColorStop(0.5,'rgba(255,255,255,'+bloom*0.12+')');bg.addColorStop(1,'rgba(255,255,255,0)');sCtx.fillStyle=bg;sCtx.fillRect(cx-baseR*1.5,cy-baseR*1.5,baseR*3,baseR*3);}
+  sCtx.restore();
+}
+
+function drawBadge(level){
+  const cx=80,cy=80;bCtx.clearRect(0,0,160,160);
+  const tier=getTier(level),gT=(level-1)/99,baseR=34+gT*16,bw=2+gT*3;
+  if(level>=30){const rings=Math.floor((level-20)/20)+1;for(let r=0;r<rings;r++){bCtx.beginPath();bCtx.arc(cx,cy,baseR+10+r*7,0,Math.PI*2);bCtx.strokeStyle=tier.border+Math.floor(0x28+0x60*gT).toString(16).padStart(2,'0');bCtx.lineWidth=0.8;bCtx.stroke();}}
+  bCtx.save();clipShape(bCtx,tier,cx,cy,baseR);
+  if(level===100){const g=bCtx.createRadialGradient(cx,cy,0,cx,cy,baseR);g.addColorStop(0,'#fff8b0');g.addColorStop(0.4,'#ffcc00');g.addColorStop(0.75,'#ff8800');g.addColorStop(1,'#cc2200');bCtx.fillStyle=g;}
+  else if(level>=80){const g=bCtx.createRadialGradient(cx-baseR*0.2,cy-baseR*0.2,baseR*0.05,cx,cy,baseR);g.addColorStop(0,tier.bg);g.addColorStop(1,tier.color);bCtx.fillStyle=g;}
+  else{bCtx.fillStyle=tier.bg;}
+  bCtx.fill();bCtx.strokeStyle=tier.border;bCtx.lineWidth=bw;bCtx.stroke();bCtx.restore();
+  if(level>=20){bCtx.save();bCtx.globalAlpha=Math.min(1,(level-20)/25);clipShape(bCtx,tier,cx,cy,baseR*0.78);bCtx.strokeStyle=tier.border;bCtx.lineWidth=0.8;bCtx.stroke();bCtx.restore();}
+  if(level>=25){const pips=Math.min(tier.sides*2,Math.floor((level-20)/8)+2);for(let i=0;i<pips;i++){const a=(Math.PI*2/pips)*i-Math.PI/2;bCtx.beginPath();bCtx.arc(cx+Math.cos(a)*baseR*1.07,cy+Math.sin(a)*baseR*1.07,1.5+gT*1.5,0,Math.PI*2);bCtx.fillStyle=tier.border;bCtx.fill();}}
+  if(level>=60){bCtx.save();bCtx.globalAlpha=(level-60)/40*0.35;for(let i=0;i<tier.sides;i++){const a=(Math.PI*2/tier.sides)*i+time*0.4;bCtx.beginPath();bCtx.moveTo(cx,cy);bCtx.lineTo(cx+Math.cos(a)*baseR*1.2,cy+Math.sin(a)*baseR*1.2);bCtx.strokeStyle='#fff';bCtx.lineWidth=1;bCtx.stroke();}bCtx.restore();}
+  const fs=level>=100?18:(level>=10?20:22);
+  bCtx.save();bCtx.textAlign='center';bCtx.textBaseline='middle';bCtx.font=`500 ${fs}px sans-serif`;
+  if(level===100){bCtx.fillStyle='#fff';bCtx.shadowColor='#ff8800';bCtx.shadowBlur=8;}
+  else if(level>=80){bCtx.fillStyle='#fff';bCtx.shadowColor=tier.border;bCtx.shadowBlur=5;}
+  else{bCtx.fillStyle=tier.border;}
+  bCtx.fillText(level,cx,cy);bCtx.restore();
+}
+
+class Particle{
+  constructor(level){
+    const cx=80,cy=80;this.level=level;
+    const angle=Math.random()*Math.PI*2,speed=0.3+Math.random()*0.9;
+    if(level===100){this.x=cx+(Math.random()-0.5)*130;this.y=cy+(Math.random()-0.5)*130;this.vx=(Math.random()-0.5)*1.2;this.vy=(Math.random()-0.5)*1.2;this.r=1.5+Math.random()*3;this.life=0.5+Math.random()*0.5;this.decay=0.008+Math.random()*0.012;const h=['#ffee00','#ffaa00','#ff5500','#ff88cc','#88eeff','#fff'];this.color=h[Math.floor(Math.random()*h.length)];}
+    else{const r=34+(level/100)*20;this.x=cx+Math.cos(angle)*(r*0.9+Math.random()*r*0.3);this.y=cy+Math.sin(angle)*(r*0.9+Math.random()*r*0.3);this.vx=Math.cos(angle)*speed*0.5+(Math.random()-0.5)*0.4;this.vy=Math.sin(angle)*speed*0.5+(Math.random()-0.5)*0.4-0.4;this.r=1+Math.random()*2;this.life=0.6+Math.random()*0.4;this.decay=0.014+Math.random()*0.008;const t=getTier(level);this.color=Math.random()>0.5?t.bg:t.color;}
+  }
+  update(){this.x+=this.vx;this.y+=this.vy;if(this.level<100)this.vy-=0.015;this.life-=this.decay;}
+  draw(){pCtx.save();pCtx.globalAlpha=Math.max(0,this.life);pCtx.beginPath();pCtx.arc(this.x,this.y,this.r,0,Math.PI*2);pCtx.fillStyle=this.color;if(this.level>=80){pCtx.shadowColor=this.color;pCtx.shadowBlur=6;}pCtx.fill();pCtx.restore();}
+}
+
+function getParticleRate(l){if(l<50)return 0;if(l<70)return 0.2;if(l<85)return 0.5;if(l<95)return 1;if(l<100)return 1.8;return 4;}
+
+function animate(){
+  time+=0.016;
+  const level=levelFromXP(xp),tier=getTier(level),baseR=34+((level-1)/99)*16;
+  drawBadge(level);drawShine(level,baseR,tier);
+  pCtx.clearRect(0,0,160,160);
+  const rate=getParticleRate(level),count=Math.floor(rate)+(Math.random()<(rate%1)?1:0);
+  for(let i=0;i<count;i++)particles.push(new Particle(level));
+  particles=particles.filter(p=>p.life>0);
+  for(const p of particles){p.update();p.draw();}
+  animFrame=requestAnimationFrame(animate);
+}
+
+function updateInputStyle(){
+  const level=levelFromXP(xp),tier=getTier(level);
+  const input=document.getElementById('good-input');
+  input.style.borderColor=tier.border+'40';
+  input.style.background=tier.bg+'18';
+}
+
+function updateUI(){
+  const level=levelFromXP(xp),tier=getTier(level);
+  const curXP=xpForLevel(level),nextXP=level<100?xpForLevel(level+1):MAX_XP;
+  const pct=level>=100?100:Math.round((xp-curXP)/(nextXP-curXP)*100);
+  document.getElementById('lvl-num').textContent=level;
+  document.getElementById('tier-name').textContent=tier.name;
+  document.getElementById('xp-cur').textContent=xp.toLocaleString()+' xp';
+  document.getElementById('xp-next').textContent='next: '+nextXP.toLocaleString();
+  document.getElementById('xp-bar').style.width=pct+'%';
+  document.getElementById('xp-bar').style.background=level>=90?'#BA7517':level>=70?'#A32D2D':'#3B6D11';
+  document.getElementById('total-xp').textContent=xp.toLocaleString();
+  document.getElementById('xp-to-next').textContent=level<100?(nextXP-xp).toLocaleString()+' xp to next level':'MAX LEVEL';
+  updateInputStyle();
+}
+
+function showToast(text,type){
+  const t=document.getElementById('toast');
+  t.textContent=text;t.className='show '+type+'-t';
+  clearTimeout(t._timer);t._timer=setTimeout(()=>{t.className='';},2800);
+}
+
+function addFeed(label,amount){
+  feed.unshift({label,amount});if(feed.length>6)feed.pop();
+  document.getElementById('feed').innerHTML=feed.map(f=>`<div class="feed-item"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.label}</span><span class="feed-xp ${f.amount>0?'pos':'neg'}" style="margin-left:8px;flex-shrink:0">${f.amount>0?'+':''}${f.amount.toLocaleString()}</span></div>`).join('');
+}
+
+function applyXP(amount,label){
+  const before=levelFromXP(xp);
+  xp=Math.max(MIN_XP,Math.min(MAX_XP,xp+amount));
+  const after=levelFromXP(xp);
+  updateUI();addFeed(label,amount);
+  saveState();
+  if(after!==before){particles=[];for(let i=0;i<14;i++)particles.push(new Particle(after));}
+}
+
+const STOP_WORDS=new Set(['a','an','the','and','or','but','for','to','of','in','on','at','by','with','from','as','is','was','were','be','been','being','am','are','i','me','my','we','us','our','you','your','it','its','this','that','these','those']);
+
+function judgeEntry(text,path){
+  const p=PATHS[path];
+  const cleaned=text.trim();
+  if(cleaned.length<10)return{ok:false,reason:'Too short — write a real sentence.'};
+  const rawTokens=cleaned.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  if(rawTokens.length<5)return{ok:false,reason:'Need at least 5 words.'};
+  const freqMap=rawTokens.reduce((m,t)=>(m[t]=(m[t]||0)+1,m),{});
+  const maxFreq=Math.max(...Object.values(freqMap));
+  if(maxFreq>4&&maxFreq/rawTokens.length>0.5)return{ok:false,reason:'One word repeats too much. Write it naturally.'};
+  const keywordSet=new Set(p.keywords);
+  const uniqueMatched=[...new Set(rawTokens.filter(t=>keywordSet.has(t)))];
+  if(uniqueMatched.length===0)return{ok:false,reason:`No ${p.label} work detected. Describe what you did.`};
+  const contextWords=rawTokens.filter(t=>!keywordSet.has(t)&&!STOP_WORDS.has(t)&&t.length>1);
+  if(contextWords.length<2)return{ok:false,reason:'Too vague. Add details about what, how, or with whom.'};
+  const quality=uniqueMatched.length>=3?1.3:uniqueMatched.length>=2?1.1:1.0;
+  const detailBonus=Math.min(1.25,1+contextWords.length*0.03);
+  const xpAward=Math.round(p.baseXP*quality*detailBonus*(0.85+Math.random()*0.3));
+  return{ok:true,xp:xpAward,reason:'Accepted! Relevant work detected.'};
+}
+
+async function submitGood(){
+  const input=document.getElementById('good-input');
+  const text=input.value.trim();
+  if(!text){showToast('Write something first','warn');return;}
+  const overlay=document.getElementById('judging-overlay');
+  overlay.style.display='block';
+  await new Promise(r=>setTimeout(r,900+Math.random()*600));
+  overlay.style.display='none';
+  const result=judgeEntry(text,activePath);
+  if(result.ok){
+    applyXP(result.xp,'Work logged: '+text.slice(0,28)+(text.length>28?'…':''));
+    showToast('+'+result.xp.toLocaleString()+' xp — '+result.reason,'pos');
+    input.value='';
+  } else {
+    showToast('Rejected: '+result.reason,'neg');
+  }
+}
+
+function buildPathGrid(){
+  const grid=document.getElementById('path-grid');
+  grid.innerHTML=Object.entries(PATHS).map(([key,p])=>`
+    <button class="path-btn ${selectedPath===key?'active':''}" onclick="selectPath('${key}')" id="pb-${key}">
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">${p.label}</div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">${p.desc}</div>
+    </button>`).join('');
+}
+
+function selectPath(key){
+  selectedPath=key;
+  document.querySelectorAll('.path-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pb-'+key).classList.add('active');
+}
+
+function launchMain(path){
+  activePath=path;
+  document.getElementById('screen-path').style.display='none';
+  document.getElementById('screen-main').style.display='block';
+  const p=PATHS[activePath];
+  document.getElementById('good-hint').textContent=p.goodHint;
+  document.getElementById('path-tag').innerHTML=`<span class="tag" style="background:${p.bg};color:${p.color}">${p.label}</span>`;
+  document.getElementById('path-detail').textContent=p.goodHint;
+  document.getElementById('loss-btns').innerHTML=LOSSES.map(l=>`<button class="loss-btn" onclick="takeLoss(${l.xp},'${l.label}')"><span>${l.label}</span><span style="font-size:12px;opacity:.8">${l.xp.toLocaleString()}</span></button>`).join('');
+  updateUI();
+  if(animFrame)cancelAnimationFrame(animFrame);
+  particles=[];animate();
+}
+
+function confirmPath(){
+  if(!selectedPath){alert('Pick a path first');return;}
+  launchMain(selectedPath);
+  saveState();
+}
+
+function takeLoss(amount,label){
+  applyXP(amount,label);
+  showToast(amount.toLocaleString()+' xp — '+label,'neg');
+}
+
+function switchPath(){
+  if(animFrame)cancelAnimationFrame(animFrame);
+  document.getElementById('screen-main').style.display='none';
+  document.getElementById('screen-path').style.display='block';
+  selectedPath=activePath;
+  buildPathGrid();
+}
+
+function resetAll(){
+  if(!confirm('Reset all progress? This cannot be undone.'))return;
+  clearState();
+  xp=MIN_XP;feed=[];activePath=null;selectedPath=null;
+  if(animFrame)cancelAnimationFrame(animFrame);
+  document.getElementById('screen-main').style.display='none';
+  document.getElementById('screen-path').style.display='block';
+  document.getElementById('feed').innerHTML='<div style="font-size:12px;color:var(--color-text-tertiary)">No activity yet</div>';
+  buildPathGrid();
+  selectPath('businessman');
+}
+
+(function init(){
+  const saved=loadState();
+  buildPathGrid();
+  if(saved&&saved.activePath&&PATHS[saved.activePath]){
+    xp=Math.max(MIN_XP,Math.min(MAX_XP,saved.xp||MIN_XP));
+    feed=saved.feed||[];
+    selectedPath=saved.activePath;
+    const level=levelFromXP(xp);
+    const banner=document.getElementById('restore-banner');
+    banner.style.display='block';
+    banner.textContent=`Progress restored — Level ${level} ${PATHS[saved.activePath].label} (${xp.toLocaleString()} xp)`;
+    launchMain(saved.activePath);
+    if(feed.length>0){
+      document.getElementById('feed').innerHTML=feed.map(f=>`<div class="feed-item"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.label}</span><span class="feed-xp ${f.amount>0?'pos':'neg'}" style="margin-left:8px;flex-shrink:0">${f.amount>0?'+':''}${f.amount.toLocaleString()}</span></div>`).join('');
+    }
+  } else {
+    selectPath('businessman');
+  }
+})();
+</script>
