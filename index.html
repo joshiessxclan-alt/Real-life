@@ -1,125 +1,445 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career XP System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}
-.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem}
-.btn{cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 14px;font-size:13px;font-weight:500;background:transparent;color:var(--color-text-primary);transition:background .15s,transform .1s;width:100%;text-align:left}
-.btn:hover{background:var(--color-background-secondary)}
-.btn:active{transform:scale(0.98)}
-.path-btn{cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px;background:transparent;transition:background .15s,border-color .15s,transform .1s;text-align:left;width:100%}
-.path-btn:hover{background:var(--color-background-secondary)}
-.path-btn.active{border:2px solid var(--color-border-info);background:var(--color-background-info)}
-.path-btn:active{transform:scale(0.98)}
-.loss-btn{cursor:pointer;border:0.5px solid #A32D2D;border-radius:var(--border-radius-md);padding:8px 14px;font-size:13px;font-weight:500;background:transparent;color:#A32D2D;transition:background .15s,transform .1s;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center}
-.loss-btn:hover{background:#FCEBEB}
-.loss-btn:active{transform:scale(0.98)}
-.feed-item{font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;color:var(--color-text-secondary)}
-.feed-item:last-child{border-bottom:none}
-.feed-xp{font-weight:500}
-.pos{color:#27500A}
-.neg{color:#791F1F}
-textarea{width:100%;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:13px;font-family:inherit;color:var(--color-text-primary);background:var(--color-background-primary);resize:none;outline:none;line-height:1.5;transition:border-color .4s,background .4s}
-textarea:focus{border-width:1px}
-#toast{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;z-index:10;max-width:90%;overflow:hidden;text-overflow:ellipsis}
-#toast.show{opacity:1}
-#toast.pos-t{background:#EAF3DE;color:#27500A;border:0.5px solid #3B6D11}
-#toast.neg-t{background:#FCEBEB;color:#791F1F;border:0.5px solid #A32D2D}
-#toast.warn-t{background:#FAEEDA;color:#633806;border:0.5px solid #854F0B}
-.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
-#judging-overlay{display:none;font-size:12px;color:var(--color-text-secondary);padding:6px 0;font-style:italic}
-#restore-banner{display:none;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:14px}
+  :root {
+    --bg-base:       #0d0d0f;
+    --bg-surface:    #141418;
+    --bg-card:       #1a1a20;
+    --bg-card-hover: #1f1f26;
+    --bg-input:      #111115;
+    --border-dim:    rgba(255,255,255,0.06);
+    --border-mid:    rgba(255,255,255,0.12);
+    --border-bright: rgba(255,255,255,0.22);
+    --text-primary:  #eeeef0;
+    --text-secondary:#9494a0;
+    --text-muted:    #55555f;
+    --accent-green:  #3B6D11;
+    --accent-green-light: #4e8f17;
+    --accent-red:    #7a1f1f;
+    --accent-red-light: #a32d2d;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(59,109,17,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 90%, rgba(83,74,183,0.07) 0%, transparent 60%);
+  }
+
+  .page-wrap {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--border-mid);
+  }
+
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .btn {
+    cursor: pointer;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Syne', sans-serif;
+    background: transparent;
+    color: var(--text-primary);
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    text-align: left;
+    width: 100%;
+  }
+
+  .btn:hover { background: rgba(255,255,255,0.05); border-color: var(--border-bright); }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: rgba(59,109,17,0.15);
+    border-color: #3B6D11;
+    color: #7ec845;
+  }
+  .btn-primary:hover { background: rgba(59,109,17,0.25); }
+
+  .path-btn {
+    cursor: pointer;
+    border: 1px solid var(--border-dim);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    background: var(--bg-card);
+    transition: background 0.15s, border-color 0.2s, transform 0.1s;
+    text-align: left;
+    width: 100%;
+    font-family: 'Syne', sans-serif;
+  }
+  .path-btn:hover { background: var(--bg-card-hover); border-color: var(--border-mid); }
+  .path-btn.active { border: 1.5px solid rgba(100,140,255,0.5); background: rgba(100,140,255,0.07); }
+  .path-btn:active { transform: scale(0.98); }
+
+  .loss-btn {
+    cursor: pointer;
+    border: 1px solid rgba(163,45,45,0.35);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Syne', sans-serif;
+    background: rgba(163,45,45,0.07);
+    color: #d96060;
+    transition: background 0.15s, transform 0.1s;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .loss-btn:hover { background: rgba(163,45,45,0.15); border-color: rgba(163,45,45,0.6); }
+  .loss-btn:active { transform: scale(0.98); }
+
+  .gain-btn {
+    cursor: pointer;
+    border: 1px solid rgba(59,109,17,0.35);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Syne', sans-serif;
+    background: rgba(59,109,17,0.08);
+    color: #7ec845;
+    transition: background 0.15s, transform 0.1s;
+    width: 100%;
+    text-align: left;
+  }
+  .gain-btn:hover { background: rgba(59,109,17,0.18); border-color: rgba(59,109,17,0.6); }
+  .gain-btn:active { transform: scale(0.98); }
+
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'Syne', sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  textarea::placeholder { color: var(--text-muted); }
+  textarea:focus { border-color: var(--border-bright); }
+
+  .feed-item {
+    font-size: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-xp { font-weight: 500; flex-shrink: 0; }
+  .feed-xp.pos { color: #7ec845; }
+  .feed-xp.neg { color: #d96060; }
+
+  #toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 18px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, top 0.2s;
+    white-space: nowrap;
+    z-index: 100;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #toast.show { opacity: 1; top: 24px; }
+  #toast.pos-t { background: rgba(78,143,23,0.2); color: #a0e060; border: 1px solid rgba(78,143,23,0.5); }
+  #toast.neg-t { background: rgba(163,45,45,0.2); color: #e08080; border: 1px solid rgba(163,45,45,0.5); }
+  #toast.warn-t { background: rgba(133,79,11,0.2); color: #e0a060; border: 1px solid rgba(133,79,11,0.5); }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .xp-bar-track {
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border-dim);
+  }
+
+  #xp-bar {
+    height: 100%;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  #judging-overlay {
+    display: none;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 6px 0;
+    font-style: italic;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  #restore-banner {
+    display: none;
+    font-size: 12px;
+    color: #7ec845;
+    background: rgba(59,109,17,0.1);
+    border: 1px solid rgba(59,109,17,0.25);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border-dim);
+    margin: 12px 0;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1.6fr);
+    gap: 16px;
+  }
+
+  .left-col, .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .path-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .path-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .big-xp {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .section-gap { margin-top: 6px; }
 </style>
+</head>
+<body>
 
-<div id="screen-path" style="padding:1rem 0">
-  <div id="restore-banner"></div>
-  <div style="font-size:22px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Choose your path</div>
-  <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:20px">Your career shapes what counts as progress</div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px" id="path-grid"></div>
-  <div style="margin-top:16px;text-align:right">
-    <button class="btn" style="width:auto;padding:10px 24px;border-color:var(--color-border-primary)" onclick="confirmPath()">Start my journey</button>
+<div id="toast"></div>
+<div class="page-wrap" style="position:relative;z-index:1;">
+
+  <div class="page-header">
+    <h1>Career XP</h1>
+    <p>Your path shapes what counts as progress</p>
   </div>
-</div>
 
-<div id="screen-main" style="display:none;padding:.5rem 0">
-  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px">
+  <div id="restore-banner"></div>
 
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="card" style="position:relative;text-align:center;padding:1.25rem">
-        <div id="toast"></div>
-        <div style="position:relative;width:160px;height:160px;margin:0 auto 8px">
-          <canvas id="bc" width="160" height="160" style="position:absolute;top:0;left:0"></canvas>
-          <canvas id="sc" width="160" height="160" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
-          <canvas id="pc" width="160" height="160" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
-        </div>
-        <div id="tier-name" style="font-size:11px;letter-spacing:.07em;color:var(--color-text-secondary);margin-bottom:2px">NOVICE</div>
-        <div style="display:flex;align-items:baseline;justify-content:center;gap:6px">
-          <span id="lvl-num" style="font-size:32px;font-weight:500;color:var(--color-text-primary)">1</span>
-          <span style="font-size:13px;color:var(--color-text-secondary)">/ 100</span>
-        </div>
-        <div id="path-tag" style="margin-top:6px"></div>
-      </div>
-
-      <div class="card">
-        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;letter-spacing:.05em">XP PROGRESS</div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">
-          <span id="xp-cur">100</span><span id="xp-next">next: 1,111</span>
-        </div>
-        <div style="background:var(--color-background-secondary);border-radius:4px;height:8px;overflow:hidden">
-          <div id="xp-bar" style="height:100%;background:#3B6D11;border-radius:4px;width:0%;transition:width .4s ease"></div>
-        </div>
-        <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:4px" id="xp-to-next"></div>
-        <div style="margin-top:10px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px">
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:2px;letter-spacing:.05em">TOTAL XP</div>
-          <div id="total-xp" style="font-size:20px;font-weight:500;color:var(--color-text-primary)">100</div>
-        </div>
-      </div>
-
-      <div class="card" style="padding:.75rem 1rem">
-        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;letter-spacing:.05em">RECENT ACTIVITY</div>
-        <div id="feed" style="min-height:48px"><div style="font-size:12px;color:var(--color-text-tertiary)">No activity yet</div></div>
-      </div>
+  <!-- PATH SELECTION SCREEN -->
+  <div id="screen-path">
+    <div style="font-size:15px;color:var(--text-secondary);margin-bottom:1.5rem;">Choose the path you are walking in real life. This determines what work counts.</div>
+    <div class="path-grid" id="path-grid"></div>
+    <div style="margin-top:20px;text-align:right;">
+      <button class="btn btn-primary" style="width:auto;padding:11px 28px;font-size:14px;" onclick="confirmPath()">Start my journey</button>
     </div>
+  </div>
 
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="card">
-        <div style="font-size:11px;color:var(--color-text-secondary);letter-spacing:.05em;margin-bottom:10px">LOG GOOD WORK</div>
-        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px" id="good-hint"></div>
-        <textarea id="good-input" rows="3" placeholder="Describe what you did today in a real sentence..."></textarea>
-        <div id="judging-overlay">Judging your entry...</div>
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <button class="btn" style="width:auto;padding:8px 16px;border-color:#3B6D11;color:#3B6D11;font-size:12px" onclick="submitGood()">Submit for review</button>
-          <span style="font-size:11px;color:var(--color-text-tertiary)">AI judges if it counts</span>
+  <!-- MAIN SCREEN -->
+  <div id="screen-main" style="display:none;">
+    <div class="main-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="left-col">
+
+        <div class="card" id="badge-card" style="text-align:center;padding:1.5rem 1rem;position:relative;overflow:visible;">
+          <div id="tier-name" style="font-size:10px;letter-spacing:.12em;color:var(--text-muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace;">NOVICE</div>
+          <div style="position:relative;width:160px;height:160px;margin:0 auto 14px;">
+            <canvas id="bc" width="160" height="160" style="position:absolute;top:0;left:0;"></canvas>
+            <canvas id="sc" width="160" height="160" style="position:absolute;top:0;left:0;pointer-events:none;"></canvas>
+            <canvas id="pc" width="160" height="160" style="position:absolute;top:0;left:0;pointer-events:none;"></canvas>
+          </div>
+          <div style="display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:6px;">
+            <span id="lvl-num" style="font-size:36px;font-weight:700;color:var(--text-primary);letter-spacing:-0.02em;font-family:'JetBrains Mono',monospace;">1</span>
+            <span style="font-size:14px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">/ 100</span>
+          </div>
+          <div id="path-tag"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">XP Progress</div>
+          <div class="stat-row">
+            <span id="xp-cur">100 xp</span>
+            <span id="xp-next">next: —</span>
+          </div>
+          <div class="xp-bar-track">
+            <div id="xp-bar"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-family:'JetBrains Mono',monospace;" id="xp-to-next"></div>
+          <hr class="divider">
+          <div style="font-size:10px;letter-spacing:.1em;color:var(--text-muted);text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Total XP</div>
+          <div id="total-xp" class="big-xp">100</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Recent Activity</div>
+          <div id="feed" style="min-height:56px;">
+            <div style="font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">No activity yet</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:1rem 1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div class="card-label" style="margin-bottom:0;">Current Path</div>
+            <button class="btn" style="width:auto;padding:4px 12px;font-size:11px;" onclick="switchPath()">Switch</button>
+          </div>
+          <div id="path-detail" style="font-size:13px;color:var(--text-secondary);line-height:1.5;"></div>
+          <hr class="divider">
+          <button class="btn" style="font-size:12px;color:var(--text-muted);border-color:var(--border-dim);" onclick="resetAll()">Reset all progress</button>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="right-col">
+
+        <div class="card">
+          <div class="card-label">Log Good Work</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;line-height:1.5;" id="good-hint"></div>
+          <textarea id="good-input" rows="4" placeholder="Describe exactly what you did today..."></textarea>
+          <div id="judging-overlay">Reviewing your entry...</div>
+          <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
+            <button class="gain-btn" style="width:auto;padding:9px 18px;" onclick="submitGood()">Submit for review</button>
+            <span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">judged by keyword analysis</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Time Wasters — instant penalty</div>
+          <div style="display:flex;flex-direction:column;gap:7px;" id="loss-btns"></div>
+        </div>
+
+      <div class="card" style="padding:.75rem 1.25rem;">
+        <div class="card-label" style="margin-bottom:8px;">Jump to level (testing)</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(1)">Lv 1</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(30)">Lv 30</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(40)">Lv 40</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(50)">Lv 50</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(60)">Lv 60</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(70)">Lv 70</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(80)">Lv 80</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(90)">Lv 90</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;" onclick="jumpToLevel(99)">Lv 99</button>
+          <button class="btn" style="text-align:center;padding:6px 4px;font-size:12px;font-family:'JetBrains Mono',monospace;border-color:#BA7517;color:#BA7517;" onclick="jumpToLevel(100)">Lv 100</button>
         </div>
       </div>
 
-      <div class="card">
-        <div style="font-size:11px;color:var(--color-text-secondary);letter-spacing:.05em;margin-bottom:8px">TIME WASTERS — instant penalty</div>
-        <div style="display:flex;flex-direction:column;gap:6px" id="loss-btns"></div>
-      </div>
-
-      <div class="card" style="padding:.75rem 1rem">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:11px;color:var(--color-text-secondary);letter-spacing:.05em">PATH</div>
-          <button class="btn" style="width:auto;padding:4px 10px;font-size:11px" onclick="switchPath()">Switch path</button>
-        </div>
-        <div id="path-detail" style="margin-top:8px;font-size:13px;color:var(--color-text-secondary)"></div>
-        <div style="margin-top:10px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px">
-          <button class="btn" style="width:100%;font-size:11px;color:var(--color-text-tertiary);border-color:var(--color-border-tertiary)" onclick="resetAll()">Reset all progress</button>
-        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const STORAGE_KEY = 'xp_career_v1';
+const STORAGE_KEY='xp_career_v1';
 
-const PATHS = {
-  businessman:{label:'Businessman',color:'#185FA5',bg:'#E6F1FB',desc:'Close deals, build systems, grow wealth.',goodHint:'Did you network, close a deal, study finance, build a product, or work on your business?',keywords:['network','networked','networking','meeting','meetings','client','clients','deal','deals','pitch','pitched','pitching','revenue','profit','business','sales','selling','sold','marketing','finance','invest','invested','investing','startup','product','strategy','negotiate','negotiated','negotiating','partnership','brand','branding','market','money','entrepreneur','plan','planned','planning','budget','budgeting','accounting','leadership','team','called','emailed','proposal','contract','customer','onboarded','close','closed','closing'],baseXP:300},
-  youtuber:{label:'YouTuber',color:'#993C1D',bg:'#FAECE7',desc:'Create, edit, grow your audience.',goodHint:'Did you film, edit, script, research, post, or engage with your audience?',keywords:['film','filmed','filming','edit','edited','editing','script','scripted','scripting','thumbnail','thumbnails','upload','uploaded','uploading','post','posted','posting','video','videos','record','recorded','recording','channel','subscribe','subscribers','audience','content','shoot','shot','shooting','camera','audio','lighting','hook','title','titles','seo','trend','trending','collab','collabed','short','shorts','vlog','vlogged','vlogging','stream','streamed','streaming','engage','engaged','engaging','commented','replied','replying','published','publishing','rendered','rendering','storyboard','storyboarded'],baseXP:250},
-  physicist:{label:'Quantum Physicist',color:'#534AB7',bg:'#EEEDFE',desc:'Research, derive, publish, understand the universe.',goodHint:'Did you study physics, work through problems, read papers, run experiments, or write research?',keywords:['study','studied','studying','research','researched','researching','paper','papers','equation','equations','derive','derived','deriving','derivation','experiment','experiments','experimenting','simulation','simulated','simulating','math','quantum','theory','physics','lab','problem','problems','read','reading','lecture','lectures','note','notes','noting','thesis','proof','proofs','proved','proving','calculate','calculated','calculating','data','analysis','analyzed','analyzing','formula','formulas','textbook','coursework','publish','published','publishing','solved','solving','wavefunction','hamiltonian','integral','integrals','matrix','matrices','tensor','tensors'],baseXP:350},
-  athlete:{label:'Athlete',color:'#27500A',bg:'#EAF3DE',desc:'Train, recover, compete, improve.',goodHint:'Did you train, work out, practice your sport, study technique, or eat well for performance?',keywords:['train','trained','training','workout','workouts','worked','working','run','ran','running','lift','lifted','lifting','practice','practiced','practicing','drill','drilled','drilling','cardio','strength','sport','sports','exercise','exercised','exercising','recovery','recovering','stretch','stretched','stretching','diet','dieting','nutrition','technique','form','compete','competed','competing','match','matches','game','games','coach','coached','coaching','sprint','sprinted','sprinting','swim','swam','swimming','cycle','cycled','cycling','played','playing','conditioning','sets','reps','squats','deadlift','deadlifts','bench','benched','mile','miles','kilometers','yoga'],baseXP:300},
-  artist:{label:'Artist',color:'#72243E',bg:'#FBEAF0',desc:'Create, practice, build your portfolio.',goodHint:'Did you draw, paint, sculpt, design, write, compose, or practice your craft today?',keywords:['draw','drew','drawing','paint','painted','painting','sketch','sketched','sketching','design','designed','designing','sculpt','sculpted','sculpting','compose','composed','composing','write','wrote','writing','written','create','created','creating','art','artwork','illustration','illustrating','color','coloring','portfolio','practice','practiced','practicing','craft','crafting','studio','brush','canvas','digital','music','musical','photography','photograph','photographed','commission','commissioned','gallery','style','styling','concept','concepts','render','rendered','rendering','drafted','drafting','piece','pieces','song','songs','chapter','chapters','poem','poems'],baseXP:275},
-  developer:{label:'Developer',color:'#0F6E56',bg:'#E1F5EE',desc:'Code, ship, learn, build things.',goodHint:'Did you code, debug, learn a new concept, build a feature, or contribute to a project?',keywords:['code','coded','coding','build','built','building','debug','debugged','debugging','deploy','deployed','deploying','commit','committed','committing','learn','learned','learning','program','programmed','programming','feature','features','fix','fixed','fixing','project','projects','algorithm','algorithms','function','functions','database','databases','api','apis','frontend','backend','test','tested','testing','tests','review','reviewed','reviewing','refactor','refactored','refactoring','documentation','documented','documenting','open','source','github','framework','frameworks','language','languages','problem','problems','shipped','shipping','merged','merging','pushed','pushing','pulled','pulling','bug','bugs','variable','variables','class','classes','module','modules','typescript','python','javascript','react','rust'],baseXP:325}
+const PATHS={
+  businessman:{label:'Businessman',color:'#378ADD',bg:'rgba(55,138,221,0.15)',tagColor:'#7bbfff',desc:'Close deals, build systems, grow wealth. Network, pitch, and lead.',goodHint:'Did you network, close a deal, study finance, build a product, or work on your business?',keywords:['network','networked','networking','meeting','meetings','client','clients','deal','deals','pitch','pitched','pitching','revenue','profit','business','sales','selling','sold','marketing','finance','invest','invested','investing','startup','product','strategy','negotiate','negotiated','negotiating','partnership','brand','branding','market','money','entrepreneur','plan','planned','planning','budget','budgeting','accounting','leadership','team','called','emailed','proposal','contract','customer','onboarded','close','closed','closing'],baseXP:300},
+  youtuber:{label:'YouTuber',color:'#D85A30',bg:'rgba(216,90,48,0.15)',tagColor:'#f0906a',desc:'Create, edit, grow your audience. Film, script, publish.',goodHint:'Did you film, edit, script, research, post, or engage with your audience?',keywords:['film','filmed','filming','edit','edited','editing','script','scripted','scripting','thumbnail','thumbnails','upload','uploaded','uploading','post','posted','posting','video','videos','record','recorded','recording','channel','subscribe','subscribers','audience','content','shoot','shot','shooting','camera','audio','lighting','hook','title','titles','seo','trend','trending','collab','collabed','short','shorts','vlog','vlogged','vlogging','stream','streamed','streaming','engage','engaged','engaging','commented','replied','replying','published','publishing','rendered','rendering','storyboard','storyboarded'],baseXP:250},
+  physicist:{label:'Quantum Physicist',color:'#7F77DD',bg:'rgba(127,119,221,0.15)',tagColor:'#b0aaff',desc:'Research, derive, publish. Work through problems and understand the universe.',goodHint:'Did you study physics, work through problems, read papers, run experiments, or write research?',keywords:['study','studied','studying','research','researched','researching','paper','papers','equation','equations','derive','derived','deriving','derivation','experiment','experiments','experimenting','simulation','simulated','simulating','math','quantum','theory','physics','lab','problem','problems','read','reading','lecture','lectures','note','notes','noting','thesis','proof','proofs','proved','proving','calculate','calculated','calculating','data','analysis','analyzed','analyzing','formula','formulas','textbook','coursework','publish','published','publishing','solved','solving','wavefunction','hamiltonian','integral','integrals','matrix','matrices','tensor','tensors'],baseXP:350},
+  athlete:{label:'Athlete',color:'#639922',bg:'rgba(99,153,34,0.15)',tagColor:'#9ed455',desc:'Train, recover, compete, improve every single day.',goodHint:'Did you train, work out, practice your sport, study technique, or eat well for performance?',keywords:['train','trained','training','workout','workouts','worked','working','run','ran','running','lift','lifted','lifting','practice','practiced','practicing','drill','drilled','drilling','cardio','strength','sport','sports','exercise','exercised','exercising','recovery','recovering','stretch','stretched','stretching','diet','dieting','nutrition','technique','form','compete','competed','competing','match','matches','game','games','coach','coached','coaching','sprint','sprinted','sprinting','swim','swam','swimming','cycle','cycled','cycling','played','playing','conditioning','sets','reps','squats','deadlift','deadlifts','bench','benched','mile','miles','kilometers','yoga'],baseXP:300},
+  artist:{label:'Artist',color:'#D4537E',bg:'rgba(212,83,126,0.15)',tagColor:'#f088aa',desc:'Create, practice, build your portfolio. Make things that matter.',goodHint:'Did you draw, paint, sculpt, design, write, compose, or practice your craft today?',keywords:['draw','drew','drawing','paint','painted','painting','sketch','sketched','sketching','design','designed','designing','sculpt','sculpted','sculpting','compose','composed','composing','write','wrote','writing','written','create','created','creating','art','artwork','illustration','illustrating','color','coloring','portfolio','practice','practiced','practicing','craft','crafting','studio','brush','canvas','digital','music','musical','photography','photograph','photographed','commission','commissioned','gallery','style','styling','concept','concepts','render','rendered','rendering','drafted','drafting','piece','pieces','song','songs','chapter','chapters','poem','poems'],baseXP:275},
+  developer:{label:'Developer',color:'#1D9E75',bg:'rgba(29,158,117,0.15)',tagColor:'#5dd4a8',desc:'Code, ship, learn, build things that work.',goodHint:'Did you code, debug, learn a new concept, build a feature, or contribute to a project?',keywords:['code','coded','coding','build','built','building','debug','debugged','debugging','deploy','deployed','deploying','commit','committed','committing','learn','learned','learning','program','programmed','programming','feature','features','fix','fixed','fixing','project','projects','algorithm','algorithms','function','functions','database','databases','api','apis','frontend','backend','test','tested','testing','tests','review','reviewed','reviewing','refactor','refactored','refactoring','documentation','documented','documenting','open','source','github','framework','frameworks','language','languages','problem','problems','shipped','shipping','merged','merging','pushed','pushing','pulled','pulling','bug','bugs','variable','variables','class','classes','module','modules','typescript','python','javascript','react','rust'],baseXP:325}
 };
 
 const LOSSES=[
@@ -127,30 +447,16 @@ const LOSSES=[
   {label:'Bedrotted (1h+)',xp:-300},
   {label:'Binge-watched TV',xp:-250},
   {label:'Mindless gaming',xp:-200},
-  {label:'Doom-scrolled news/Twitter',xp:-150},
+  {label:'Doom-scrolled news / Twitter',xp:-150},
   {label:'Skipped the day entirely',xp:-500},
 ];
 
 const MIN_XP=100,MAX_XP=100000;
 let xp=MIN_XP,feed=[],selectedPath=null,activePath=null,animFrame=null,particles=[],time=0;
 
-function saveState(){
-  try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({xp,activePath,feed}));
-  }catch(e){}
-}
-
-function loadState(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw)return null;
-    return JSON.parse(raw);
-  }catch(e){return null;}
-}
-
-function clearState(){
-  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
-}
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({xp,activePath,feed}));}catch(e){}}
+function loadState(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+function clearState(){try{localStorage.removeItem(STORAGE_KEY);}catch(e){}}
 
 const tiers=[
   {min:1,max:10,name:'NOVICE',color:'#7a9bb5',bg:'#c8dce8',border:'#5a7fa0',sides:3,star:false},
@@ -171,33 +477,16 @@ function xpForLevel(l){if(l<=1)return MIN_XP;if(l>=100)return MAX_XP;return Math
 function levelFromXP(x){if(x<=MIN_XP)return 1;if(x>=MAX_XP)return 100;return Math.min(100,Math.max(1,Math.floor(1+99*Math.log(x/MIN_XP)/Math.log(MAX_XP/MIN_XP))));}
 function defaultRot(s){return s===4?Math.PI/4:-Math.PI/2;}
 
+const bc=document.getElementById('bc'),bCtx=bc.getContext('2d');
+const sc=document.getElementById('sc'),sCtx=sc.getContext('2d');
+const pc=document.getElementById('pc'),pCtx=pc.getContext('2d');
+
 function polyPath(c,cx,cy,r,s,rot){c.beginPath();for(let i=0;i<s;i++){const a=(Math.PI*2/s)*i+rot;i===0?c.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();}
 function starPath(c,cx,cy,r1,r2,pts,rot){rot=rot??-Math.PI/2;c.beginPath();for(let i=0;i<pts*2;i++){const a=(Math.PI/pts)*i+rot,r=i%2===0?r1:r2;i===0?c.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}c.closePath();}
 function clipShape(c,tier,cx,cy,r){if(tier.star)starPath(c,cx,cy,r,r*0.42,tier.sides);else polyPath(c,cx,cy,r,tier.sides,defaultRot(tier.sides));}
 function shineStr(level){const g=(level-1)/99,nt=Math.round(level/10)*10,dist=Math.abs(level-nt);const pulse=dist<=8?Math.pow(1-dist/8,1.5):0;return Math.min(1,g*0.6+pulse*(0.4+g*0.6));}
 
-const bc=document.getElementById('bc'),bCtx=bc.getContext('2d');
-const sc=document.getElementById('sc'),sCtx=sc.getContext('2d');
-const pc=document.getElementById('pc'),pCtx=pc.getContext('2d');
 
-function drawShine(level,baseR,tier){
-  const cx=80,cy=80;sCtx.clearRect(0,0,160,160);
-  const str=shineStr(level);if(str<0.01)return;
-  const ti=tiers.indexOf(tier),prev=tiers[Math.max(0,ti-1)],next=tiers[Math.min(tiers.length-1,ti+1)];
-  const sweep=(Math.sin(time*1.1)+1)/2;
-  sCtx.save();sCtx.beginPath();clipShape(sCtx,tier,cx,cy,baseR-1);sCtx.clip();
-  const gx1=cx-baseR*1.4+sweep*baseR*2.8;
-  const grd=sCtx.createLinearGradient(gx1,cy,gx1+baseR*1.4,cy);
-  const a=Math.round(str*180).toString(16).padStart(2,'0'),ma=Math.round(str*220).toString(16).padStart(2,'0');
-  grd.addColorStop(0,prev.bg+'00');grd.addColorStop(0.25,prev.bg+a);grd.addColorStop(0.5,tier.bg+ma);grd.addColorStop(0.75,next.bg+a);grd.addColorStop(1,next.bg+'00');
-  sCtx.fillStyle=grd;sCtx.fillRect(cx-baseR*1.5,cy-baseR*1.5,baseR*3,baseR*3);
-  const sx=gx1+baseR*0.55,sg=sCtx.createLinearGradient(sx-10,cy-baseR,sx+10,cy+baseR);
-  const wa=Math.round(str*180).toString(16).padStart(2,'0'),wb=Math.round(Math.min(255,str*255)).toString(16).padStart(2,'0');
-  sg.addColorStop(0,'#ffffff00');sg.addColorStop(0.45,'#ffffff'+wa);sg.addColorStop(0.5,'#ffffff'+wb);sg.addColorStop(0.55,'#ffffff'+wa);sg.addColorStop(1,'#ffffff00');
-  sCtx.save();sCtx.translate(sx,cy);sCtx.rotate(-0.35);sCtx.fillStyle=sg;sCtx.fillRect(-10,-baseR*1.4,20,baseR*2.8);sCtx.restore();
-  if(level>=70){const bloom=(level-70)/30,bg=sCtx.createRadialGradient(cx,cy,0,cx,cy,baseR);bg.addColorStop(0,'rgba(255,255,255,'+bloom*0.25+')');bg.addColorStop(0.5,'rgba(255,255,255,'+bloom*0.12+')');bg.addColorStop(1,'rgba(255,255,255,0)');sCtx.fillStyle=bg;sCtx.fillRect(cx-baseR*1.5,cy-baseR*1.5,baseR*3,baseR*3);}
-  sCtx.restore();
-}
 
 function drawBadge(level){
   const cx=80,cy=80;bCtx.clearRect(0,0,160,160);
@@ -212,7 +501,7 @@ function drawBadge(level){
   if(level>=25){const pips=Math.min(tier.sides*2,Math.floor((level-20)/8)+2);for(let i=0;i<pips;i++){const a=(Math.PI*2/pips)*i-Math.PI/2;bCtx.beginPath();bCtx.arc(cx+Math.cos(a)*baseR*1.07,cy+Math.sin(a)*baseR*1.07,1.5+gT*1.5,0,Math.PI*2);bCtx.fillStyle=tier.border;bCtx.fill();}}
   if(level>=60){bCtx.save();bCtx.globalAlpha=(level-60)/40*0.35;for(let i=0;i<tier.sides;i++){const a=(Math.PI*2/tier.sides)*i+time*0.4;bCtx.beginPath();bCtx.moveTo(cx,cy);bCtx.lineTo(cx+Math.cos(a)*baseR*1.2,cy+Math.sin(a)*baseR*1.2);bCtx.strokeStyle='#fff';bCtx.lineWidth=1;bCtx.stroke();}bCtx.restore();}
   const fs=level>=100?18:(level>=10?20:22);
-  bCtx.save();bCtx.textAlign='center';bCtx.textBaseline='middle';bCtx.font=`500 ${fs}px sans-serif`;
+  bCtx.save();bCtx.textAlign='center';bCtx.textBaseline='middle';bCtx.font=`600 ${fs}px 'JetBrains Mono',monospace`;
   if(level===100){bCtx.fillStyle='#fff';bCtx.shadowColor='#ff8800';bCtx.shadowBlur=8;}
   else if(level>=80){bCtx.fillStyle='#fff';bCtx.shadowColor=tier.border;bCtx.shadowBlur=5;}
   else{bCtx.fillStyle=tier.border;}
@@ -230,12 +519,267 @@ class Particle{
   draw(){pCtx.save();pCtx.globalAlpha=Math.max(0,this.life);pCtx.beginPath();pCtx.arc(this.x,this.y,this.r,0,Math.PI*2);pCtx.fillStyle=this.color;if(this.level>=80){pCtx.shadowColor=this.color;pCtx.shadowBlur=6;}pCtx.fill();pCtx.restore();}
 }
 
+function hexToRgb(hex){
+  hex=hex.replace('#','');
+  if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
+  const n=parseInt(hex,16);
+  return [(n>>16)&255,(n>>8)&255,n&255];
+}
+
+// ── Tiered shine: one distinct effect per decade, 30-100 ─────────────────────
+// shineStrong() gives a full, stable opacity across the whole decade bracket
+// rather than pulsing only at the tier boundary like shineStr() does.
+function shineStrong(level){
+  if(level<30) return 0;
+  return Math.min(1, 0.4 + (level-30)/70*0.6);
+}
+
+function drawShine(level,baseR,tier){
+  const cx=80,cy=80;
+  sCtx.clearRect(0,0,160,160);
+  if(level<30) return;
+
+  const str=shineStrong(level);
+  const ti=tiers.indexOf(tier);
+  const prev=tiers[Math.max(0,ti-1)];
+  const next=tiers[Math.min(tiers.length-1,ti+1)];
+  const [r,g,b]=hexToRgb(tier.border);
+  const [rp,gp,bp]=hexToRgb(prev.border);
+  const [rn,gn,bn]=hexToRgb(next.border);
+  const breathe=0.88+0.12*Math.sin(time*1.4);
+  const decade=Math.floor(level/10)*10;
+
+  sCtx.save();
+  sCtx.beginPath(); clipShape(sCtx,tier,cx,cy,baseR-1); sCtx.clip();
+
+  if(decade===30){
+    // 30–39: single horizontal colour wash sweeping left to right
+    const sweep=(Math.sin(time*0.9)+1)/2;
+    const gx1=cx-baseR*1.4+sweep*baseR*2.8;
+    const grd=sCtx.createLinearGradient(gx1,cy,gx1+baseR*1.4,cy);
+    grd.addColorStop(0,   `rgba(${rp},${gp},${bp},0)`);
+    grd.addColorStop(0.25,`rgba(${rp},${gp},${bp},${(str*0.55).toFixed(2)})`);
+    grd.addColorStop(0.5, `rgba(${r},${g},${b},${(str*0.75).toFixed(2)})`);
+    grd.addColorStop(0.75,`rgba(${rn},${gn},${bn},${(str*0.55).toFixed(2)})`);
+    grd.addColorStop(1,   `rgba(${rn},${gn},${bn},0)`);
+    sCtx.fillStyle=grd;
+    sCtx.fillRect(cx-baseR*1.5,cy-baseR*1.5,baseR*3,baseR*3);
+
+  } else if(decade===40){
+    // 40–49: two diagonal streaks crossing in opposite directions
+    const s1=(Math.sin(time*1.1)+1)/2;
+    const s2=1-s1; // always opposite phase
+    [[s1,-0.5,rp,gp,bp],[s2,0.5,rn,gn,bn]].forEach(([sw,angle,cr,cg,cb])=>{
+      const sx=cx-baseR*1.3+sw*baseR*2.6;
+      const sg=sCtx.createLinearGradient(sx-16,cy-baseR,sx+16,cy+baseR);
+      sg.addColorStop(0,   `rgba(${cr},${cg},${cb},0)`);
+      sg.addColorStop(0.3, `rgba(${cr},${cg},${cb},${(str*0.4).toFixed(2)})`);
+      sg.addColorStop(0.5, `rgba(${cr},${cg},${cb},${(str*0.75).toFixed(2)})`);
+      sg.addColorStop(0.7, `rgba(${cr},${cg},${cb},${(str*0.4).toFixed(2)})`);
+      sg.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+      sCtx.save(); sCtx.translate(sx,cy); sCtx.rotate(angle);
+      sCtx.fillStyle=sg; sCtx.fillRect(-16,-baseR*1.5,32,baseR*3);
+      sCtx.restore();
+    });
+
+  } else if(decade===50){
+    // 50–59: chromatic split — two tinted bands diverge around a white core
+    const sweep=(Math.sin(time*1.0)+1)/2;
+    const base=cx-baseR*1.2+sweep*baseR*2.4;
+    [[-18,rp,gp,bp],[18,rn,gn,bn]].forEach(([off,cr,cg,cb])=>{
+      const sx=base+off;
+      const sg=sCtx.createLinearGradient(sx-10,cy-baseR,sx+10,cy+baseR);
+      sg.addColorStop(0,   `rgba(${cr},${cg},${cb},0)`);
+      sg.addColorStop(0.4, `rgba(${cr},${cg},${cb},${(str*0.5).toFixed(2)})`);
+      sg.addColorStop(0.5, `rgba(${cr},${cg},${cb},${(str*0.8).toFixed(2)})`);
+      sg.addColorStop(0.6, `rgba(${cr},${cg},${cb},${(str*0.5).toFixed(2)})`);
+      sg.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+      sCtx.save(); sCtx.translate(sx,cy); sCtx.rotate(-0.22);
+      sCtx.fillStyle=sg; sCtx.fillRect(-10,-baseR*1.4,20,baseR*2.8);
+      sCtx.restore();
+    });
+    // White core between the two split bands
+    const wg=sCtx.createLinearGradient(base-5,cy-baseR,base+5,cy+baseR);
+    wg.addColorStop(0,  'rgba(255,255,255,0)');
+    wg.addColorStop(0.5,`rgba(255,255,255,${(str*0.9).toFixed(2)})`);
+    wg.addColorStop(1,  'rgba(255,255,255,0)');
+    sCtx.save(); sCtx.translate(base,cy); sCtx.rotate(-0.22);
+    sCtx.fillStyle=wg; sCtx.fillRect(-5,-baseR*1.4,10,baseR*2.8);
+    sCtx.restore();
+
+  } else if(decade===60){
+    // 60–69: rotating light rays emanating from badge centre
+    const rayCount=6;
+    for(let i=0;i<rayCount;i++){
+      const a=(Math.PI*2/rayCount)*i+time*0.55;
+      const rg=sCtx.createLinearGradient(cx,cy,cx+Math.cos(a)*baseR*1.2,cy+Math.sin(a)*baseR*1.2);
+      rg.addColorStop(0,  `rgba(${r},${g},${b},${(str*0.75*breathe).toFixed(2)})`);
+      rg.addColorStop(0.5,`rgba(${r},${g},${b},${(str*0.3).toFixed(2)})`);
+      rg.addColorStop(1,  `rgba(${r},${g},${b},0)`);
+      sCtx.beginPath();
+      sCtx.moveTo(cx,cy);
+      sCtx.arc(cx,cy,baseR*1.2,a-0.22,a+0.22);
+      sCtx.closePath();
+      sCtx.fillStyle=rg; sCtx.fill();
+    }
+
+  } else if(decade===70){
+    // 70–79: prismatic concentric rings pulsing outward
+    const ringCount=4;
+    for(let i=0;i<ringCount;i++){
+      const phase=(time*0.75+(i*(Math.PI*2/ringCount)))%(Math.PI*2);
+      const rp2=(Math.sin(phase)+1)/2;
+      const ringR=baseR*(0.15+rp2*0.85);
+      const alpha=str*(0.7-rp2*0.55)*breathe;
+      const cols=[tier.border,prev.border,next.border,tier.bg];
+      const [ri,gi,bi]=hexToRgb(cols[i%cols.length]);
+      sCtx.beginPath();
+      sCtx.arc(cx,cy,ringR,0,Math.PI*2);
+      sCtx.strokeStyle=`rgba(${ri},${gi},${bi},${Math.max(0,alpha).toFixed(2)})`;
+      sCtx.lineWidth=3;
+      sCtx.stroke();
+    }
+
+  } else if(decade===80){
+    // 80–89: hard radial bloom — bright white core fading to tier colour
+    const bloom=sCtx.createRadialGradient(cx,cy,0,cx,cy,baseR);
+    bloom.addColorStop(0,   `rgba(255,255,255,${(str*0.6*breathe).toFixed(2)})`);
+    bloom.addColorStop(0.3, `rgba(${r},${g},${b},${(str*0.4*breathe).toFixed(2)})`);
+    bloom.addColorStop(0.7, `rgba(${r},${g},${b},${(str*0.12).toFixed(2)})`);
+    bloom.addColorStop(1,   'rgba(0,0,0,0)');
+    sCtx.fillStyle=bloom;
+    sCtx.fillRect(cx-baseR,cy-baseR,baseR*2,baseR*2);
+    // Slow specular streak riding over the bloom
+    const sweep=(Math.sin(time*0.7)+1)/2;
+    const sx=cx-baseR*1.1+sweep*baseR*2.2;
+    const sg=sCtx.createLinearGradient(sx-9,cy-baseR,sx+9,cy+baseR);
+    sg.addColorStop(0,  'rgba(255,255,255,0)');
+    sg.addColorStop(0.5,`rgba(255,255,255,${(str*0.55*breathe).toFixed(2)})`);
+    sg.addColorStop(1,  'rgba(255,255,255,0)');
+    sCtx.save(); sCtx.translate(sx,cy); sCtx.rotate(-0.3);
+    sCtx.fillStyle=sg; sCtx.fillRect(-9,-baseR*1.4,18,baseR*2.8);
+    sCtx.restore();
+
+  } else if(decade===90){
+    // 90–99: dual counter-rotating starburst fans
+    [1,-1].forEach((dir,di)=>{
+      const fanCount=8;
+      for(let i=0;i<fanCount;i++){
+        const a=(Math.PI*2/fanCount)*i+time*1.2*dir+(di*Math.PI/fanCount);
+        const rg=sCtx.createLinearGradient(cx,cy,cx+Math.cos(a)*baseR,cy+Math.sin(a)*baseR);
+        rg.addColorStop(0,  `rgba(255,255,255,${(str*0.6*breathe).toFixed(2)})`);
+        rg.addColorStop(0.4,`rgba(${r},${g},${b},${(str*0.45).toFixed(2)})`);
+        rg.addColorStop(1,  `rgba(${r},${g},${b},0)`);
+        sCtx.beginPath();
+        sCtx.moveTo(cx,cy);
+        sCtx.arc(cx,cy,baseR,a-0.10,a+0.10);
+        sCtx.closePath();
+        sCtx.fillStyle=rg; sCtx.fill();
+      }
+    });
+
+  } else if(level>=100){
+    // 100: full corona — radial bloom + 12-spoke halo + pulsing outer ring
+    const coronaR=sCtx.createRadialGradient(cx,cy,0,cx,cy,baseR);
+    coronaR.addColorStop(0,   `rgba(255,255,200,${(0.65*breathe).toFixed(2)})`);
+    coronaR.addColorStop(0.35,`rgba(255,160,0,${(0.45*breathe).toFixed(2)})`);
+    coronaR.addColorStop(0.7, 'rgba(255,60,0,0.15)');
+    coronaR.addColorStop(1,   'rgba(0,0,0,0)');
+    sCtx.fillStyle=coronaR;
+    sCtx.fillRect(cx-baseR,cy-baseR,baseR*2,baseR*2);
+    for(let i=0;i<12;i++){
+      const a=(Math.PI*2/12)*i+time*0.9;
+      const sg=sCtx.createLinearGradient(cx,cy,cx+Math.cos(a)*baseR,cy+Math.sin(a)*baseR);
+      sg.addColorStop(0,`rgba(255,255,180,${(0.75*breathe).toFixed(2)})`);
+      sg.addColorStop(1,'rgba(255,120,0,0)');
+      sCtx.beginPath(); sCtx.moveTo(cx,cy);
+      sCtx.arc(cx,cy,baseR,a-0.07,a+0.07);
+      sCtx.closePath(); sCtx.fillStyle=sg; sCtx.fill();
+    }
+    const rp3=(Math.sin(time*1.5)+1)/2;
+    sCtx.beginPath(); sCtx.arc(cx,cy,baseR*(0.5+rp3*0.45),0,Math.PI*2);
+    sCtx.strokeStyle=`rgba(255,220,80,${(0.5*(1-rp3)*breathe).toFixed(2)})`;
+    sCtx.lineWidth=4; sCtx.stroke();
+  }
+
+  sCtx.restore();
+
+  // Outside-badge halo — bleeds past shape edges at high levels (unclipped)
+  if(level>=60){
+    const t60=Math.min(1,(level-60)/40);
+    const haloAlpha=str*t60*0.32*breathe;
+    const haloR=sCtx.createRadialGradient(cx,cy,baseR*0.8,cx,cy,baseR*1.65);
+    haloR.addColorStop(0,`rgba(${r},${g},${b},${haloAlpha.toFixed(2)})`);
+    haloR.addColorStop(1,`rgba(${r},${g},${b},0)`);
+    sCtx.fillStyle=haloR;
+    sCtx.fillRect(0,0,160,160);
+  }
+}
+
+
+// ── Card-level glow: radiates from badge card into sibling cards ──────────────
+function updateCardGlow(){
+  const level=levelFromXP(xp);
+  const tier=getTier(level);
+  const globalT=Math.pow(Math.max(0,level-20)/80,1.4);
+  const breathe=0.88+0.12*Math.sin(time*0.7);
+  const [r,g,b]=hexToRgb(tier.border);
+  const badgeCard=document.getElementById('badge-card');
+  if(!badgeCard) return;
+
+  if(level<20){
+    badgeCard.style.boxShadow='none';
+    badgeCard.style.borderColor='';
+    document.querySelectorAll('#screen-main .left-col .card:not(#badge-card), #screen-main .right-col .card').forEach(c=>{
+      c.style.boxShadow='none';
+    });
+    return;
+  }
+
+  // Badge card border + glow
+  const borderA=(globalT*0.7).toFixed(2);
+  const glowSpread=Math.round(globalT*80*breathe);
+  const glowA=(globalT*0.45*breathe).toFixed(2);
+  badgeCard.style.borderColor=`rgba(${r},${g},${b},${borderA})`;
+  badgeCard.style.boxShadow=`0 0 ${glowSpread}px rgba(${r},${g},${b},${glowA}), 0 0 ${Math.round(glowSpread*0.4)}px rgba(${r},${g},${b},${(parseFloat(glowA)*1.4).toFixed(2)})`;
+
+  // Sibling cards in left col pick up a softer ambient from the badge above them
+  const leftSiblings=document.querySelectorAll('#screen-main .left-col .card:not(#badge-card)');
+  leftSiblings.forEach((card,i)=>{
+    const falloff=Math.max(0,globalT-(i*0.18));
+    const sibA=(falloff*0.25*breathe).toFixed(2);
+    const sibSpread=Math.round(falloff*40);
+    if(falloff>0.02){
+      card.style.boxShadow=`0 0 ${sibSpread}px rgba(${r},${g},${b},${sibA})`;
+      card.style.borderColor=`rgba(${r},${g},${b},${(falloff*0.4).toFixed(2)})`;
+    } else {
+      card.style.boxShadow='none';
+      card.style.borderColor='';
+    }
+  });
+
+  // Right column cards get a faint ambient glow at high levels
+  const rightCards=document.querySelectorAll('#screen-main .right-col .card');
+  rightCards.forEach(card=>{
+    const rA=(Math.max(0,globalT-0.3)*0.15*breathe).toFixed(2);
+    const rSpread=Math.round(Math.max(0,globalT-0.3)*30);
+    if(parseFloat(rA)>0.01){
+      card.style.boxShadow=`0 0 ${rSpread}px rgba(${r},${g},${b},${rA})`;
+      card.style.borderColor=`rgba(${r},${g},${b},${(Math.max(0,globalT-0.3)*0.3).toFixed(2)})`;
+    } else {
+      card.style.boxShadow='none';
+      card.style.borderColor='';
+    }
+  });
+}
+
 function getParticleRate(l){if(l<50)return 0;if(l<70)return 0.2;if(l<85)return 0.5;if(l<95)return 1;if(l<100)return 1.8;return 4;}
 
 function animate(){
   time+=0.016;
   const level=levelFromXP(xp),tier=getTier(level),baseR=34+((level-1)/99)*16;
   drawBadge(level);drawShine(level,baseR,tier);
+  updateCardGlow();
   pCtx.clearRect(0,0,160,160);
   const rate=getParticleRate(level),count=Math.floor(rate)+(Math.random()<(rate%1)?1:0);
   for(let i=0;i<count;i++)particles.push(new Particle(level));
@@ -247,8 +791,8 @@ function animate(){
 function updateInputStyle(){
   const level=levelFromXP(xp),tier=getTier(level);
   const input=document.getElementById('good-input');
-  input.style.borderColor=tier.border+'40';
-  input.style.background=tier.bg+'18';
+  input.style.borderColor=tier.border+'50';
+  input.style.background=tier.bg+'10';
 }
 
 function updateUI(){
@@ -260,37 +804,36 @@ function updateUI(){
   document.getElementById('xp-cur').textContent=xp.toLocaleString()+' xp';
   document.getElementById('xp-next').textContent='next: '+nextXP.toLocaleString();
   document.getElementById('xp-bar').style.width=pct+'%';
-  document.getElementById('xp-bar').style.background=level>=90?'#BA7517':level>=70?'#A32D2D':'#3B6D11';
+  document.getElementById('xp-bar').style.background=level>=90?'#BA7517':level>=70?'#a32d2d':'#3B6D11';
   document.getElementById('total-xp').textContent=xp.toLocaleString();
-  document.getElementById('xp-to-next').textContent=level<100?(nextXP-xp).toLocaleString()+' xp to next level':'MAX LEVEL';
+  document.getElementById('xp-to-next').textContent=level<100?(nextXP-xp).toLocaleString()+' xp to next level':'MAX LEVEL REACHED';
   updateInputStyle();
+  if(!animFrame)updateCardGlow();
 }
 
 function showToast(text,type){
   const t=document.getElementById('toast');
   t.textContent=text;t.className='show '+type+'-t';
-  clearTimeout(t._timer);t._timer=setTimeout(()=>{t.className='';},2800);
+  clearTimeout(t._timer);t._timer=setTimeout(()=>{t.className='';},2600);
 }
 
 function addFeed(label,amount){
   feed.unshift({label,amount});if(feed.length>6)feed.pop();
-  document.getElementById('feed').innerHTML=feed.map(f=>`<div class="feed-item"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.label}</span><span class="feed-xp ${f.amount>0?'pos':'neg'}" style="margin-left:8px;flex-shrink:0">${f.amount>0?'+':''}${f.amount.toLocaleString()}</span></div>`).join('');
+  document.getElementById('feed').innerHTML=feed.map(f=>`<div class="feed-item"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.label}</span><span class="feed-xp ${f.amount>0?'pos':'neg'}">${f.amount>0?'+':''}${f.amount.toLocaleString()}</span></div>`).join('');
 }
 
 function applyXP(amount,label){
   const before=levelFromXP(xp);
   xp=Math.max(MIN_XP,Math.min(MAX_XP,xp+amount));
   const after=levelFromXP(xp);
-  updateUI();addFeed(label,amount);
-  saveState();
+  updateUI();addFeed(label,amount);saveState();
   if(after!==before){particles=[];for(let i=0;i<14;i++)particles.push(new Particle(after));}
 }
 
 const STOP_WORDS=new Set(['a','an','the','and','or','but','for','to','of','in','on','at','by','with','from','as','is','was','were','be','been','being','am','are','i','me','my','we','us','our','you','your','it','its','this','that','these','those']);
 
 function judgeEntry(text,path){
-  const p=PATHS[path];
-  const cleaned=text.trim();
+  const p=PATHS[path];const cleaned=text.trim();
   if(cleaned.length<10)return{ok:false,reason:'Too short — write a real sentence.'};
   const rawTokens=cleaned.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
   if(rawTokens.length<5)return{ok:false,reason:'Need at least 5 words.'};
@@ -305,20 +848,18 @@ function judgeEntry(text,path){
   const quality=uniqueMatched.length>=3?1.3:uniqueMatched.length>=2?1.1:1.0;
   const detailBonus=Math.min(1.25,1+contextWords.length*0.03);
   const xpAward=Math.round(p.baseXP*quality*detailBonus*(0.85+Math.random()*0.3));
-  return{ok:true,xp:xpAward,reason:'Accepted! Relevant work detected.'};
+  return{ok:true,xp:xpAward,reason:'Accepted!'};
 }
 
 async function submitGood(){
-  const input=document.getElementById('good-input');
-  const text=input.value.trim();
+  const input=document.getElementById('good-input');const text=input.value.trim();
   if(!text){showToast('Write something first','warn');return;}
-  const overlay=document.getElementById('judging-overlay');
-  overlay.style.display='block';
+  const overlay=document.getElementById('judging-overlay');overlay.style.display='block';
   await new Promise(r=>setTimeout(r,900+Math.random()*600));
   overlay.style.display='none';
   const result=judgeEntry(text,activePath);
   if(result.ok){
-    applyXP(result.xp,'Work logged: '+text.slice(0,28)+(text.length>28?'…':''));
+    applyXP(result.xp,'Work logged: '+text.slice(0,30)+(text.length>30?'…':''));
     showToast('+'+result.xp.toLocaleString()+' xp — '+result.reason,'pos');
     input.value='';
   } else {
@@ -327,11 +868,10 @@ async function submitGood(){
 }
 
 function buildPathGrid(){
-  const grid=document.getElementById('path-grid');
-  grid.innerHTML=Object.entries(PATHS).map(([key,p])=>`
+  document.getElementById('path-grid').innerHTML=Object.entries(PATHS).map(([key,p])=>`
     <button class="path-btn ${selectedPath===key?'active':''}" onclick="selectPath('${key}')" id="pb-${key}">
-      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">${p.label}</div>
-      <div style="font-size:12px;color:var(--color-text-secondary)">${p.desc}</div>
+      <div style="font-size:14px;font-weight:600;color:${p.tagColor};margin-bottom:6px;">${p.label}</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">${p.desc}</div>
     </button>`).join('');
 }
 
@@ -347,9 +887,9 @@ function launchMain(path){
   document.getElementById('screen-main').style.display='block';
   const p=PATHS[activePath];
   document.getElementById('good-hint').textContent=p.goodHint;
-  document.getElementById('path-tag').innerHTML=`<span class="tag" style="background:${p.bg};color:${p.color}">${p.label}</span>`;
+  document.getElementById('path-tag').innerHTML=`<span class="tag" style="background:${p.bg};color:${p.tagColor};border:1px solid ${p.color}33;">${p.label}</span>`;
   document.getElementById('path-detail').textContent=p.goodHint;
-  document.getElementById('loss-btns').innerHTML=LOSSES.map(l=>`<button class="loss-btn" onclick="takeLoss(${l.xp},'${l.label}')"><span>${l.label}</span><span style="font-size:12px;opacity:.8">${l.xp.toLocaleString()}</span></button>`).join('');
+  document.getElementById('loss-btns').innerHTML=LOSSES.map(l=>`<button class="loss-btn" onclick="takeLoss(${l.xp},'${l.label}')"><span>${l.label}</span><span style="font-size:11px;font-family:'JetBrains Mono',monospace;opacity:.7;">${l.xp.toLocaleString()}</span></button>`).join('');
   updateUI();
   if(animFrame)cancelAnimationFrame(animFrame);
   particles=[];animate();
@@ -357,33 +897,36 @@ function launchMain(path){
 
 function confirmPath(){
   if(!selectedPath){alert('Pick a path first');return;}
-  launchMain(selectedPath);
+  launchMain(selectedPath);saveState();
+}
+
+
+function jumpToLevel(target){
+  xp=xpForLevel(Math.max(1,Math.min(100,target)));
+  particles=[];
+  updateUI();
   saveState();
 }
 
 function takeLoss(amount,label){
-  applyXP(amount,label);
-  showToast(amount.toLocaleString()+' xp — '+label,'neg');
+  applyXP(amount,label);showToast(amount.toLocaleString()+' xp — '+label,'neg');
 }
 
 function switchPath(){
   if(animFrame)cancelAnimationFrame(animFrame);
   document.getElementById('screen-main').style.display='none';
   document.getElementById('screen-path').style.display='block';
-  selectedPath=activePath;
-  buildPathGrid();
+  selectedPath=activePath;buildPathGrid();
 }
 
 function resetAll(){
   if(!confirm('Reset all progress? This cannot be undone.'))return;
-  clearState();
-  xp=MIN_XP;feed=[];activePath=null;selectedPath=null;
+  clearState();xp=MIN_XP;feed=[];activePath=null;selectedPath=null;
   if(animFrame)cancelAnimationFrame(animFrame);
   document.getElementById('screen-main').style.display='none';
   document.getElementById('screen-path').style.display='block';
-  document.getElementById('feed').innerHTML='<div style="font-size:12px;color:var(--color-text-tertiary)">No activity yet</div>';
-  buildPathGrid();
-  selectPath('businessman');
+  document.getElementById('feed').innerHTML='<div style="font-size:12px;color:var(--text-muted);font-family:\'JetBrains Mono\',monospace;">No activity yet</div>';
+  buildPathGrid();selectPath('businessman');
 }
 
 (function init(){
@@ -396,13 +939,15 @@ function resetAll(){
     const level=levelFromXP(xp);
     const banner=document.getElementById('restore-banner');
     banner.style.display='block';
-    banner.textContent=`Progress restored — Level ${level} ${PATHS[saved.activePath].label} (${xp.toLocaleString()} xp)`;
+    banner.textContent='Progress restored — Level '+level+' '+PATHS[saved.activePath].label+' ('+xp.toLocaleString()+' xp)';
     launchMain(saved.activePath);
     if(feed.length>0){
-      document.getElementById('feed').innerHTML=feed.map(f=>`<div class="feed-item"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.label}</span><span class="feed-xp ${f.amount>0?'pos':'neg'}" style="margin-left:8px;flex-shrink:0">${f.amount>0?'+':''}${f.amount.toLocaleString()}</span></div>`).join('');
+      document.getElementById('feed').innerHTML=feed.map(f=>`<div class="feed-item"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.label}</span><span class="feed-xp ${f.amount>0?'pos':'neg'}">${f.amount>0?'+':''}${f.amount.toLocaleString()}</span></div>`).join('');
     }
   } else {
     selectPath('businessman');
   }
 })();
 </script>
+</body>
+</html>
